@@ -1,0 +1,14 @@
+.idea/
+__pycache__/
+artifacts/
+backups/
+
+data/codebert-base/
+data/dataset/
+data/graphdata/
+
+tools/joern-cli/workspace/
+tools/joern-cli/
+
+*.py[cod]
+*.log
