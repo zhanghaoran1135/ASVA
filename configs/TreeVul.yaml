@@ -1,0 +1,132 @@
+paths:
+  dataset_csv: data/dataset/Treevul.csv
+  codebert_path: data/codebert-base
+  graph_dir: data/graphdata/before
+  joern_cli_dir: tools/joern-cli
+  joern_script_path: tools/asva_legacy_joern/get_func_graph.scala
+  processed_dir: artifacts/tree_processed
+  checkpoint_dir: artifacts/tree_checkpoints
+  log_dir: artifacts/tree_logs
+data:
+  use_partition_column: true
+  feature_mode: raw_code_only
+  keep_invalid_rows: false
+  full_text_mode: changed_window
+  full_window_context_lines: 20
+  full_window_max_lines: 80
+  full_window_token_budget: 300
+  ces_token_budget: 176
+  max_seq_length_full: 320
+  max_seq_length_ces: 192
+  max_line_length: 80
+  max_attack_lines: 48
+  max_graph_nodes: 64
+  max_graph_node_length: 48
+  graph_content_match_limit: 128
+  graph_content_match_chars: 2048
+  generate_missing_joern: true
+  joern_workers: 8
+  joern_timeout_sec: 180
+  joern_verbose: 0
+  use_blaming_fallback: true
+  precomputed_feature_columns: []
+model:
+  dropout: 0.2
+  multi_sample_dropout_num: 1
+  hidden_dim: 320
+  conv_channels: 192
+  gru_hidden_dim: 192
+  exploit_attention_dim: 192
+  attack_attention_heads: 4
+  attack_transformer_layers: 3
+  gat_hidden_dim: 192
+  gat_heads: 4
+  gat_layers: 2
+  gat_dropout: 0.2
+attack_site_selector:
+  threshold_mode: fixed
+  theta: 0.5
+  empty_selection_policy: max_score
+  top_k_fallback: 1
+memory:
+  gradient_checkpointing: true
+  line_encode_chunk_size: 128
+  graph_encode_chunk_size: 128
+  detach_line_graph_encoder: true
+training:
+  batch_size: 32
+  epochs: 50
+  monitor_metric: mcc
+  monitor_exclude_tasks:
+    - cvss2_AU
+  learning_rate: 0.001
+  backbone_lr_scale: 0.02
+  weight_decay: 0.0
+  gradient_accumulation_steps: 1
+  max_grad_norm: 1.0
+  early_stopping_patience: 8
+  num_workers: 0
+  use_amp: true
+  freeze_codebert: false
+  freeze_codebert_epochs: 0
+  save_last: true
+  max_train_steps: null
+  scheduler:
+    enabled: true
+    type: reduce_on_plateau
+    mode: max
+    start_epoch: 6
+    factor: 0.5
+    patience: 2
+    threshold: 0.002
+    cooldown: 0
+    min_lr_scale: 0.1
+    verbose: true
+  loss:
+    type: weighted_focal
+    focal_gamma: 1.5
+    label_smoothing: 0.05
+    logit_adjustment_tau: 0.0
+    use_class_weights: true
+    class_weight_power: 0.5
+    class_weight_min: 0.5
+    class_weight_max: 3.0
+    task_weights:
+      cvss2_AC: 1.15
+      cvss2_AU: 1.2
+      cvss2_C: 1.1
+      cvss2_I: 1.1
+      cvss2_A: 1.1
+      cvss2_severity: 1.4
+  sampler:
+    enabled: false
+    tasks:
+      - cvss2_AU
+      - cvss2_C
+      - cvss2_I
+      - cvss2_A
+      - cvss2_severity
+    power: 1.0
+    min_weight: 0.5
+    max_weight: 4.0
+    replacement: true
+  ema:
+    enabled: false
+    decay: 0.999
+auxiliary:
+  use_vuln_consistency_loss: true
+  use_cfp_loss: true
+  use_mlm_loss: true
+  vuln_consistency_weight: 0.05
+  cfp_weight: 0.1
+  mlm_weight: 0.1
+  mlm_probability: 0.15
+  decay:
+    enabled: false
+    start_epoch: 8
+    final_scale: 0.2
+runtime:
+  seed: 42
+  device: auto
+  use_embedding_cache: false
+  embedding_cache_dir: artifacts/tree_embedding_cache

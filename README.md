@@ -8,7 +8,7 @@ This repository contains the core implementation of ASVA and resources for repro
 
 ```bash
 sudo apt install openjdk-11-jdk
-conda env create -f environment.yaml
+conda env create -f environment.yml
 ```
 
 You should also 
